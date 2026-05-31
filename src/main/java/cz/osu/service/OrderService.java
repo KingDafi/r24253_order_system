@@ -3,6 +3,8 @@ package cz.osu.service;
 import cz.osu.model.Order;
 import cz.osu.model.OrderItem;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,5 +57,24 @@ public class OrderService {
             }
         }
         return mostSold != null ? mostSold + " (" + maxQuantity + " ks)" : "Žádný produkt";
+    }
+
+    public void exportToCsv(String filePath) throws IOException {
+        try (FileWriter writer = new FileWriter(filePath)) {
+            writer.write("Datum;Jméno zákazníka;Celková cena objednávky\n");
+
+            for (Order order : orders) {
+                double orderTotal = 0;
+                for (OrderItem item : order.getItems()) {
+                    orderTotal += item.getTotalPrice();
+                }
+
+                String line = String.format("%s;%s;%.2f\n",
+                        order.getDate().toString(),
+                        order.getSubscriber().getName(),
+                        orderTotal);
+                writer.write(line);
+            }
+        }
     }
 }
